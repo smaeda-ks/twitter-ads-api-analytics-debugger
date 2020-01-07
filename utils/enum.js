@@ -27,38 +27,40 @@ Enum.ENTITY_TYPE = [
     'PROMOTED_ACCOUNT'
 ]
 
-const MODAL_ANALYTICS_DATA_MESSAGE = ({ endpointType, data }) =>
+const MODAL_ANALYTICS_DATA_MESSAGE = () =>
     `
-<button class="uk-modal-close-default" type="button" uk-close></button>
-<div class="uk-modal-header">
-    <h2 class="uk-modal-title">${endpointType} Job Data</h2>
-</div>
+<div class="uk-modal-dialog uk-modal-body">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        <h2 class="uk-modal-title"> {{ data.endpointType }} Job Data</h2>
+    </div>
 
-<div class="uk-modal-body" uk-overflow-auto>
-    <textarea id="log-view" class="uk-textarea" readonly="true"
-    style="resize: auto; overflow-y: scroll; height: 400px; background-color:LightGray;">${JSON.stringify(data, null, 4)}</textarea>
-</div>
+    <div class="uk-modal-body" uk-overflow-auto>
+        <pre v-highlightjs="data.json"><code class="json"></code></pre>
+    </div>
 
-<div class="uk-modal-footer uk-text-right">
-    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-    <button class="uk-button uk-button-primary" type="button">Save</button>
+    <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+        <button class="uk-button uk-button-primary" type="button">Save</button>
+    </div>
 </div>
 `;
 
-const MODAL_NOTIFICATION_MESSAGE = ({ status, message }) =>
+const MODAL_NOTIFICATION_MESSAGE = () =>
     `
-<button class="uk-modal-close-default" type="button" uk-close></button>
-<div class="uk-modal-header">
-    <h2 class="uk-modal-title">Error code: ${status}</h2>
-</div>
+<div class="uk-modal-dialog uk-modal-body">
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <div class="uk-modal-header">
+        <h2 class="uk-modal-title">Error code: {{ data.statusCode }}</h2>
+    </div>
 
-<div class="uk-modal-body" uk-overflow-auto>
-    <textarea id="log-view" class="uk-textarea" readonly="true"
-    style="resize: auto; overflow-y: scroll; height: 400px; background-color:LightGray;">${message}</textarea>
-</div>
+    <div class="uk-modal-body" uk-overflow-auto>
+        <pre v-highlightjs="data.reason"><code class="json"></code></pre>
+    </div>
 
-<div class="uk-modal-footer uk-text-right">
-    <button class="uk-button uk-button-default uk-modal-close" type="button">Close</button>
+    <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default uk-modal-close" type="button">Close</button>
+    </div>
 </div>
 `;
 

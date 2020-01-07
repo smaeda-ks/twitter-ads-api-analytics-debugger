@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+    <!-- highlight.js 9.17.1 -->
+    <link rel="stylesheet" href="../assets/css/highlightjs-xcode.min.css">
+    <script src="../assets/js/highlight.min.js"></script>
+
     <!-- Vue.js 2.6.11 -->
     <script src="../assets/js/vue.min.js"></script>
 
     <!-- UIkit 3.2.6 -->
-    <link rel="stylesheet" href="../assets/css/uikit.min.css" />
+    <link rel="stylesheet" href="../assets/css/uikit.min.css">
     <script src="../assets/js/uikit.min.js"></script>
     <script src="../assets/js/uikit-icons.min.js"></script>
 
@@ -228,11 +233,63 @@
             </div>
         </div>
     </div>
+
+    <div id="result-data-modal" uk-modal>
+        <result-data-modal-template v-bind:data="{'endpointType': endpointType, 'json': json}"></result-data-modal-template>
+    </div>
+
+    <div id="error-modal" uk-modal>
+        <error-modal-template v-bind:data="{'statusCode': statusCode, 'reason': reason}"></error-modal-template>
+    </div>
+
     <div id="config-modal" uk-modal>
         <config-modal-template v-bind:data="secret"></config-modal-template>
     </div>
 
     <script type='text/javascript'>
+
+        Vue.directive('highlightjs', {
+            deep: true,
+            componentUpdated: function (el, binding) {
+                let targets = el.querySelectorAll('code')
+                targets.forEach((target) => {
+                    target.innerHTML = binding.value
+                    hljs.highlightBlock(target)
+                })
+            }
+        })
+
+        const resultDataModal = new Vue({
+            el: '#result-data-modal',
+            data: {
+                endpointType: '',
+                json: ''
+            },
+            components: {
+                'result-data-modal-template': {
+                    template: Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA(),
+                    props: [
+                        'data'
+                    ]
+                }
+            }
+        })
+
+        const errorModal = new Vue({
+            el: '#error-modal',
+            data: {
+                statusCode: '',
+                reason: ''
+            },
+            components: {
+                'error-modal-template': {
+                    template: Enum.MODAL_TEMPLATE.MODAL_NOTIFICATION(),
+                    props: [
+                        'data'
+                    ]
+                }
+            }
+        })
 
         const endpointSwitcher = new Vue({
             el: '#endpoint-switcher',
@@ -291,7 +348,10 @@
                                 }
                                 loader.isActive = false
                             }
-                            UIkit.modal.dialog(Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA({ 'endpointType': 'Async', 'data': data }))
+                            resultDataModal.endpointType = 'Async'
+                            resultDataModal.json = JSON.stringify(data, null, 4)
+                            let modal = UIkit.modal(`#${resultDataModal.$el.id}`)
+                            modal.show()
                         }
                     }
                 }
@@ -452,7 +512,10 @@
                         if (data === 'error') {
                             return
                         }
-                        UIkit.modal.dialog(Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA({ 'endpointType': 'Sync', 'data': data }))
+                        resultDataModal.endpointType = 'Sync'
+                        resultDataModal.json = JSON.stringify(data, null, 4)
+                        let modal = UIkit.modal(`#${resultDataModal.$el.id}`)
+                        modal.show()
                     }
                     loader.isActive = false
                     return
@@ -605,7 +668,10 @@
             } catch {
                 formattedMessage = message
             }
-            UIkit.modal.dialog(Enum.MODAL_TEMPLATE.MODAL_NOTIFICATION({ 'status': status, 'message': formattedMessage }))
+            errorModal.statusCode = status
+            errorModal.reason = formattedMessage
+            let modal = UIkit.modal(`#${errorModal.$el.id}`)
+            modal.show()
             return
         })
     </script>
