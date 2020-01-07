@@ -17,7 +17,7 @@ An Electron-based desktop application for Twitter Ads Analytics API.
 
 ### Download
 
-Please download the latest version from the [releases](https://github.com/smaeda-ks/aem-deploy-tool/releases) page.  
+Please download the latest version from the [releases](https://github.com/smaeda-ks/twitter-ads-api-analytics-debugger/releases) page.  
 This application is built as a single executable file so there are no "install" steps at all.
 
 ### Authentication
