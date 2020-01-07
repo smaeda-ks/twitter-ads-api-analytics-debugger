@@ -1,0 +1,38 @@
+cache:
+  directories:
+    - node_modules
+    - $HOME/.cache/electron
+    - $HOME/.cache/electron-builder
+
+jobs:
+  - stage: build mac
+    os: osx
+    osx_image: xcode11.3
+    language: node_js
+    node_js: "10"
+    env:
+      - ELECTRON_CACHE=$HOME/.cache/electron
+      - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+    if: tag IS present
+    script: npm install && npm run build:mac-ci
+  - stage: build windows
+    os: linux
+    services: docker
+    language: generic
+    before_cache:
+      - rm -rf $HOME/.cache/electron-builder/wine
+    if: tag IS present
+    script:
+      - |
+        docker run --rm \
+          --env-file <(env | grep -vE '\r|\n' | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS|APPVEYOR_|CSC_|_TOKEN|_KEY|AWS_|STRIP|BUILD_') \
+          -v ${PWD}:/project \
+          -v ~/.cache/electron:/root/.cache/electron \
+          -v ~/.cache/electron-builder:/root/.cache/electron-builder \
+          electronuserland/builder:wine \
+          /bin/bash -c "npm install && npm run build:win-ci"
+
+branches:
+  only:
+    - "master"
+    - "/^v\\d\\.\\d\\.\\d/"

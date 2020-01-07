@@ -1,0 +1,10 @@
+directories:
+  output: "dist"
+  buildResources: "build"
+appId: "com.twitterdev.tools.TwitterAds.Analytics.Debugger"
+mac:
+  target: "dmg"
+artifactName: "${name}-${version}-${os}.${ext}"
+publish:
+  - provider: github
+    publishAutoUpdate: false

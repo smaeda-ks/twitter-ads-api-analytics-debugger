@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Vue.js 2.6.11 -->
+    <script src="../assets/js/vue.min.js"></script>
+
+    <!-- UIkit 3.2.6 -->
+    <link rel="stylesheet" href="../assets/css/uikit.min.css" />
+    <script src="../assets/js/uikit.min.js"></script>
+    <script src="../assets/js/uikit-icons.min.js"></script>
+
+    <!-- flatpickr 4.6.3 -->
+    <link rel="stylesheet" href="../assets/css/flatpickr.min.css">
+    <script src="../assets/js/flatpickr.min.js"></script>
+
+    <style type="text/css">
+        .uk-button {
+            text-transform:none;
+        }
+        .uk-table td {
+            padding-top: 10px!important;
+            padding-bottom: 10px!important;
+        }
+        .uk-table .uk-button-small {
+            line-height: 1.5!important;
+        }
+        .required:after {
+            content:" *";
+            color: red!important;
+        }
+        .truncate {
+            text-overflow:ellipsis!important;
+            display:inline-block!important;
+            overflow: hidden!important;
+            white-space: nowrap!important;
+        }
+        .response-loader {
+            display: block;
+            position: relative;
+            height: 2px;
+            width: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 2;
+        }
+        .response-loader .response-progress-bar.indeterminate {
+            width: 50%;
+            background-image: linear-gradient(78.82deg, rgba(255, 255, 255, 0), #FF8E4F 49.98%, rgba(255, 255, 255, 0));
+        }
+
+        .response-loader .indeterminate {
+            animation: loader-animation 1s ease-in-out infinite;
+        }
+
+        .response-loader .response-progress-bar {
+            height: 100%;
+        }
+        @keyframes loader-animation{
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(200%);
+            }
+        }
+    </style>
+    <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:; default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval';" />
+    <meta charset="UTF-8">
+    <title>Twitter Ads API Analytics Debugger</title>
+</head>
+
+<body style="height: 100vh; margin: 0;">
+    <div class="uk-flex uk-flex-column uk-height-1-1">
+        <nav class="uk-navbar-container uk-margin uk-margin-remove-bottom" uk-navbar>
+            <div class="uk-navbar-item uk-navbar-left">
+                <img class="uk-svg" style="height: 50px;" src="../logo/Twitter_Logo_Blue.svg">
+            </div>
+            <div class="uk-navbar-item uk-navbar-center" id="endpoint-switcher">
+                <div uk-switcher="animation: uk-animation-fade; toggle: > *">
+                    <button v-on:click="disableAsyncElements(false); isAsyncSelected = true; isSyncSelected = false;" class="uk-button uk-button-default" v-bind:class="{'uk-button-primary': isAsyncSelected}" type="button">Asynchronous</button>
+                    <button v-on:click="disableAsyncElements(true); isSyncSelected = true; isAsyncSelected = false;" class="uk-button uk-button-default" v-bind:class="{'uk-button-primary': isSyncSelected}" type="button">Synchronous</button>
+                </div>
+            </div>
+            <div class="uk-navbar-item uk-navbar-right" id="config-modal-open-button">
+                <a href="javascript:;" v-on:click="openConfigWindow($event)" class="uk-icon-button uk-margin-small-right" uk-icon="cog"></a>
+            </div>
+        </nav>
+        <div class="uk-flex" id="loader">
+            <div style="padding-bottom: 2px;"></div>
+            <div v-if="isActive" class="response-loader">
+                <div class="response-progress-bar indeterminate"></div>
+            </div>
+        </div>
+        <div class="uk-flex uk-flex-stretch uk-flex-nowrap uk-margin-small-left uk-margin-small-right uk-margin-small-top uk-margin-small-bottom"
+            style="flex-grow: 1;">
+            <div style="flex-grow: 1;" class="uk-width-1-2">
+                <div id="send-request-button" class="uk-width-1-1" style="text-align:center;">
+                    <button v-on:click="onClickSendRequest($event)" class="uk-button uk-button-danger" type="submit">Send Request</button>
+                </div>
+                <form class="uk-margin-remove-left uk-form-stacked uk-grid-small" id="main-form" uk-grid>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary	uk-text-bold required" for="form-stacked-text">Ads Account ID</label>
+                        <input class="uk-input uk-form-small" id="ads-account-id" v-model="accountID" type="text" placeholder="" required>
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                    </div>
+                    <div class="uk-margin uk-text-small uk-width-1-2@s uk-margin-small-top uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-select">Entity Type</label>
+                        <div class="uk-width-1-1 truncate" uk-form-custom="target: > * > span:first-child">
+                            <select id="entity_type" v-model="selectedEntityType" required>
+                                <option value="">select...</option>
+                                <option v-for="item in listsEntityType" v-bind:value="item" v-bind:key="item">{{item}}</option>
+                            </select>
+                            <button class="uk-button uk-button-default uk-form-small uk-width-1-1" type="button">
+                            <span></span>
+                            <span uk-icon="icon: chevron-down"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Entity IDs</label>
+                        <input class="uk-input uk-form-small" id="entity_ids" v-model="entityIds" type="text" placeholder="id1,id2,id3..." required>
+                    </div>
+                    <div class="uk-margin uk-margin-remove-bottom uk-margin-small-top uk-text-small uk-width-1">
+                        <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Metric Groups</label>
+                        <div class="uk-form-controls">
+                            <label><input class="uk-checkbox" type="checkbox" v-model= "selectedMultiMetricGroups" name="metric_groups" value="BILLING" ref="metricGroupsValidationPointer" onchange="this.setCustomValidity('')"> BILLING</label>
+                            <label><input class="uk-checkbox" type="checkbox" v-model= "selectedMultiMetricGroups" name="metric_groups" value="ENGAGEMENT"> ENGAGEMENT</label>
+                            </br>
+                            <label><input class="uk-checkbox" type="checkbox" v-model= "selectedMultiMetricGroups" name="metric_groups" value="MEDIA"> MEDIA</label>
+                            <label><input class="uk-checkbox" type="checkbox" v-model= "selectedMultiMetricGroups" name="metric_groups" value="VIDEO"> VIDEO</label>
+                            </br>
+                            <label><input class="uk-checkbox" type="checkbox" v-model= "selectedMultiMetricGroups" name="metric_groups" value="WEB_CONVERSION"> WEB_CONVERSION</label>
+                            <label><input class="uk-checkbox" type="checkbox" v-model= "selectedMultiMetricGroups" name="metric_groups" value="MOBILE_CONVERSION"> MOBILE_CONVERSION</label>
+                            </br>
+                            <label><input class="uk-checkbox" type="checkbox" v-model= "selectedMultiMetricGroups" name="metric_groups" value="LIFE_TIME_VALUE_MOBILE_CONVERSION"> LIFE_TIME_VALUE_MOBILE_CONVERSION</label>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-margin-remove-bottom uk-margin-small-top uk-text-small uk-width-1">
+                        <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Placement</label>
+                        <div class="uk-form-controls">
+                            <label><input class="uk-radio" type="radio" name="radio_placement" value="ALL_ON_TWITTER" v-model="placementSelected" required> ALL_ON_TWITTER</label>
+                            <label><input class="uk-radio" type="radio" name="radio_placement" value="PUBLISHER_NETWORK" v-model="placementSelected" required> PUBLISHER_NETWORK</label>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-margin-remove-bottom uk-margin-small-top uk-text-small uk-width-1">
+                        <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Granularity</label>
+                        <div class="uk-form-controls">
+                            <label><input class="uk-radio" type="radio" name="radio_granularity" value="DAY" v-model="granularitySelected" required> DAY</label>
+                            <label><input class="uk-radio" type="radio" name="radio_granularity" value="HOUR" v-model="granularitySelected" required> HOUR</label>
+                            <label><input class="uk-radio" type="radio" name="radio_granularity" value="TOTAL" v-model="granularitySelected" required> TOTAL</label>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Start Date</label>
+                        <input-datepicker ref="startDateInput" v-model="startDate"></input-datepicker>
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">Start Time</label>
+                        <div class="uk-width-1-1 truncate" uk-form-custom="target: > * > span:first-child">
+                            <select id="start_time" v-model="startTimeSelected">
+                                <option value="">hour...</option>
+                                <option v-for="item in listTime24h" v-bind:value="item" v-bind:key="item">{{item}}</option>
+                            </select>
+                            <button class="uk-button uk-button-default uk-form-small uk-width-1-1" type="button">
+                            <span></span>
+                            <span uk-icon="icon: chevron-down"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">End Date</label>
+                        <input-datepicker ref="endDateInput" v-model="endDate"></input-datepicker>
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">End Time</label>
+                        <div class="uk-width-1-1 truncate" uk-form-custom="target: > * > span:first-child">
+                            <select id="end_time" v-model="endTimeSelected">
+                                <option value="">hour...</option>
+                                <option v-for="item in listTime24h" v-bind:value="item" v-bind:key="item">{{item}}</option>
+                            </select>
+                            <button class="uk-button uk-button-default uk-form-small uk-width-1-1" type="button">
+                            <span></span>
+                            <span uk-icon="icon: chevron-down"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-text-small uk-width-1-2@s uk-margin-small-top uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-select">Segmentation Type</label>
+                        <div class="uk-width-1-1 truncate" uk-form-custom="target: > * > span:first-child">
+                            <select id="segmentation_type" v-model="selectedSegmentation" v-bind:disabled="disabledSegmentation">
+                                <option value="">select...</option>
+                                <option v-for="item in listsSegmentation" v-bind:value="item" v-bind:key="item">{{item}}</option>
+                            </select>
+                            <button class="uk-button uk-button-default uk-form-small uk-width-1-1" type="button">
+                            <span></span>
+                            <span uk-icon="icon: chevron-down"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">Country</label>
+                        <input class="uk-input uk-form-small" id="country" v-model="country" type="text" placeholder="" v-bind:disabled="disabledCountry">
+                    </div>
+                    <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
+                        <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">Platform</label>
+                        <input class="uk-input uk-form-small" id="platform" v-model="platform" type="text" placeholder="" v-bind:disabled="disabledPlatform">
+                    </div>
+                </form>
+            </div>
+            <div style="flex-grow: 1;" class="uk-width-1-2">
+                <div style="text-align:center;" id="fetch-jobs-button">
+                    <button v-on:click="onClickFetchJobs" class="uk-button uk-button-default">Fetch Jobs</button>
+                </div>
+                <table class="uk-table uk-table-hover uk-table-small uk-text-center uk-table-divider uk-margin-small-top uk-margin-small-right uk-margin-small-left">
+                    <th class="uk-text-center uk-table-shrink">Status</th>
+                    <th class="uk-text-center">Job IDS</th>
+                    <th class="uk-text-center">Data</th>
+                    <tbody id=table-job-ids>
+                        <tr is=table-template v-for="item in items" v-bind:item="item" v-bind:key="item">
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="text-align:center;" id="reset-button">
+                    <button v-on:click="onClickReset" class="uk-button uk-button-default">Clear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="config-modal" uk-modal>
+        <config-modal-template v-bind:data="secret"></config-modal-template>
+    </div>
+
+    <script type='text/javascript'>
+
+        const endpointSwitcher = new Vue({
+            el: '#endpoint-switcher',
+            data: {
+                isAsyncSelected: true,
+                isSyncSelected: false
+            },
+            methods: {
+                disableAsyncElements: function (e) {
+                    mainForm.disabledSegmentation = e
+                    mainForm.disabledCountry = e
+                    mainForm.disabledPlatform = e
+                }
+            }
+        })
+
+        const loader = new Vue({
+            el: '#loader',
+            data: {
+                isActive: false
+            }
+        })
+
+        const tabelJobIds = new Vue({
+            el: '#table-job-ids',
+            data: {
+                // e.g., [{status: null, job_id: '1111', url: 'https://xxxx'}]
+                items: []
+            },
+            components: {
+                'table-template': {
+                    template:
+                        `<tr>` +
+                        `<td>` +
+                        `<span v-if="item.status === null" class="uk-label">N/A</span>` +
+                        `<span v-else-if="item.status === 'success'" class="uk-label uk-label-success">SUCCESS</span>` +
+                        `<span v-else-if="item.status === 'processing'" class="uk-label uk-label-warning">PROCESSING</span>` +
+                        `</td>` +
+                        `<td>{{ item.job_id }}</td>` +
+                        `<td><button v-if="item.url !== null" class="uk-button uk-margin-remove uk-button-default uk-button-small" v-on:click="fetchData(item.job_id, item.url);" :data-job-id="item.job_id" :data-cdn-url="item.url">view</button>` +
+                        `</tr>`,
+                    props: ['item'],
+                    methods: {
+                        fetchData: async function (jobId, url) {
+                            let data = null
+                            // For the first time user clicks the view button we download data AND
+                            // save it to the browser's session storage (cache).
+                            // Afterward, we can fetch data from the local session storage rather than making a request every time.
+                            if (sessionStorage.getItem(`${jobId}-data`) !== null) {
+                                data = JSON.parse(sessionStorage.getItem(`${jobId}-data`))
+                            } else {
+                                loader.isActive = true
+                                data = await ipcRenderer.invoke('fetchData', url)
+                                if (data !== 'error') {
+                                    sessionStorage.setItem(`${jobId}-data`, JSON.stringify(data))
+                                }
+                                loader.isActive = false
+                            }
+                            UIkit.modal.dialog(Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA({ 'endpointType': 'Async', 'data': data }))
+                        }
+                    }
+                }
+            }
+        })
+
+        const mainForm = new Vue({
+            el: '#main-form',
+            data: {
+                // Ads account id
+                accountID: '',
+                // entity_type
+                selectedEntityType: '',
+                listsEntityType: Enum.ENTITY_TYPE,
+                // entity_ids
+                entityIds: '',
+                // metric_groups
+                selectedMultiMetricGroups: [],
+                // placement
+                placementSelected: '',
+                // granularity
+                granularitySelected: '',
+                // start_date (Y-m-d)
+                startDate: '',
+                // start_time
+                startTimeSelected: '',
+                // end_date (Y-m-d)
+                endDate: '',
+                // end_time
+                endTimeSelected: '',
+                listTime24h: Enum.TIME_24H,
+                // segmentation
+                selectedSegmentation: '',
+                listsSegmentation: Enum.SEGMENTATION_TYPE,
+                disabledSegmentation: false,
+                // country
+                country: '',
+                disabledCountry: false,
+                // platform
+                platform: '',
+                disabledPlatform: false
+            },
+            components: {
+                'input-datepicker': {
+                    props: ['value'],
+                    template: `<input v-bind:value="value" v-on:input="$emit('input', $event.target.value)" class="uk-input uk-form-small" type="text" placeholder="Select (Y-m-d)..." required>`
+                },
+            },
+            mounted: function () {
+                this.attachDatepicker('startDateInput')
+                this.attachDatepicker('endDateInput')
+            },
+            methods: {
+                attachDatepicker: function (refName) {
+                    const picker = flatpickr(this.$refs[refName].$el, { allowInput: true });
+
+                    this.$once('hook:beforeDestroy', function () {
+                        picker.destroy()
+                    })
+                }
+            }
+        })
+
+        new Vue({
+            el: '#reset-button',
+            methods: {
+                onClickReset: () => {
+                    // clear browser's session storage (or it will be gone once the application is closed)
+                    sessionStorage.clear()
+                    tabelJobIds.items = []
+                }
+            }
+        })
+
+        new Vue({
+            el: '#send-request-button',
+            methods: {
+                formatDates: function () {
+                    let startTime, endTime = ""
+                    if (mainForm.startTimeSelected !== "") {
+                        startTime = `${mainForm.startDate}T${mainForm.startTimeSelected}:00Z`
+                    } else {
+                        startTime = mainForm.startDate
+                    }
+                    if (mainForm.endTimeSelected !== "") {
+                        endTime = `${mainForm.endDate}T${mainForm.endTimeSelected}:00Z`
+                    } else {
+                        endTime = mainForm.endDate
+                    }
+                    return [startTime, endTime]
+                },
+                getAsyncOnlyParams: function () {
+                    let params = {}
+                    if (mainForm.selectedSegmentation !== "") {
+                        params.segmentation_type = mainForm.selectedSegmentation
+                    }
+                    if (mainForm.country !== "") {
+                        params.country = mainForm.country
+                    }
+                    if (mainForm.platform !== "") {
+                        params.platform = mainForm.platform
+                    }
+                    return params
+                },
+                onClickSendRequest: async function (event) {
+                    const endpointType = endpointSwitcher.isAsyncSelected ? Enum.ENV.ASYNC : Enum.ENV.SYNC;
+
+                    // because we want to trigger form validations but don't need page transitions (or reload)
+                    event.preventDefault()
+
+                    const accountId = mainForm.accountID
+                    const metricGroups = mainForm.selectedMultiMetricGroups
+
+                    // form validations
+                    // As the default validation doesn't work with multiple checkboxes we need to set a custom validity here
+                    if (metricGroups.length === 0) {
+                        mainForm.$refs.metricGroupsValidationPointer.setCustomValidity("Please select at least one of these options.")
+                    } else {
+                        mainForm.$refs.metricGroupsValidationPointer.setCustomValidity("")
+                    }
+
+                    if (mainForm.$el.checkValidity() !== true) {
+                        mainForm.$el.reportValidity()
+                        return
+                    }
+
+                    let [startTime, endTime] = this.formatDates()
+                    const params = {
+                        entity: mainForm.selectedEntityType,
+                        entity_ids: mainForm.entityIds,
+                        metric_groups: metricGroups.join(','),
+                        placement: mainForm.placementSelected,
+                        granularity: mainForm.granularitySelected,
+                        start_time: startTime,
+                        end_time: endTime
+                    }
+
+                    let headers = {}
+                    loader.isActive = true
+                    // send request
+                    if (endpointType === 'async') {
+                        // don't create a new job if table is full (max: 10 jobs)
+                        if (tabelJobIds.items.length >= 10) {
+                            loader.isActive = false
+                            UIkit.notification({ message: 'Please clear Jobs first.', status: Enum.STATUS.ERROR, pos: 'bottom-center' })
+                            return
+                        }
+
+                        const jobId = await ipcRenderer.invoke('sendAsyncRequest', accountId, Object.assign(params, this.getAsyncOnlyParams()), headers)
+                        if (jobId === 'error') {
+                            return
+                        }
+
+                        tabelJobIds.items.push({ status: null, job_id: jobId, url: null })
+
+                    } else if (endpointType === 'sync') {
+                        const data = await ipcRenderer.invoke('sendSyncRequest', accountId, params, headers)
+                        if (data === 'error') {
+                            return
+                        }
+                        UIkit.modal.dialog(Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA({ 'endpointType': 'Sync', 'data': data }))
+                    }
+                    loader.isActive = false
+                    return
+                }
+            }
+        })
+
+        new Vue({
+            el: '#fetch-jobs-button',
+            methods: {
+                onClickFetchJobs: async () => {
+                    const accountId = mainForm.accountID
+                    const jobIdsRowsIndex = {}
+                    const parsedJobIds = tabelJobIds.items.filter((item, index) => {
+                        if (item.status !== 'success') {
+                            jobIdsRowsIndex[item.job_id] = index
+                        }
+                        return (item.status !== 'success')
+                    })
+
+                    // validation
+                    if (parsedJobIds.length === 0) {
+                        // return if there are no job ids in the table
+                        UIkit.notification({ message: Enum.ERROR.NO_JOBS_TO_FETCH, status: Enum.STATUS.ERROR, pos: 'bottom-center', timeout: 1500 })
+                        return
+                    } else if (accountId === '') {
+                        // return if the Ads Account ID field (in the form) is empty
+                        UIkit.notification({ message: Enum.ERROR.MISSING_ACCOUNT_ID, status: Enum.STATUS.ERROR, pos: 'bottom-center', timeout: 1500 })
+                        return
+                    }
+
+                    let headers = {}
+                    loader.isActive = true
+                    const response = await ipcRenderer.invoke('fetchJobs', accountId, { job_ids: Object.keys(jobIdsRowsIndex).join(',') }, headers)
+                    loader.isActive = false
+                    for (let i = 0; i < response.length; i++) {
+                        let jobId = response[i][0]
+                        let status = response[i][1].toLowerCase()
+                        let url = response[i][2]
+                        tabelJobIds.$set(tabelJobIds.items, jobIdsRowsIndex[jobId], {
+                            status: status,
+                            job_id: jobId,
+                            url: url
+                        })
+                    }
+                }
+            }
+        })
+
+        const configModal = new Vue({
+            el: '#config-modal',
+            data: {
+                secret: {
+                    consumer_key: '',
+                    consumer_secret: '',
+                    access_token: '',
+                    token_secret: ''
+                }
+            },
+            components: {
+                'config-modal-template': {
+                    template: Enum.MODAL_TEMPLATE.CONFIG_WINDOW(),
+                    props: [
+                        'data'
+                    ],
+                    methods: {
+                        saveTokens: async function (event) {
+                            event.preventDefault()
+
+                            const configForm = this.$refs['ref-config-form']
+                            if (configForm.checkValidity() !== true) {
+                                configForm.reportValidity()
+                                return
+                            }
+
+                            const tokens = this.$parent.secret
+                            const result = await ipcRenderer.invoke('setTokens', tokens)
+
+                            // close modal
+                            const modal = UIkit.modal(`#${this.$parent.$el.id}`)
+                            modal.hide()
+                            // reset secret
+                            this.resetTokens()
+                        },
+                        resetTokens: function () {
+                            this.$parent.secret.consumer_key = ''
+                            this.$parent.secret.consumer_secret = ''
+                            this.$parent.secret.access_token = ''
+                            this.$parent.secret.token_secret = ''
+                        },
+                        updateSecret: function (key, value) {       
+                            this.$parent.secret[key] = value
+                        },
+                        trapTabKey: function (event) {
+                            // TAB key press
+                            if (event.keyCode === 9) {
+                                firstTabStop = document.getElementById('consumer_key')
+                                lastTabStop = document.getElementById('save-tokens-button')
+                                // SHIFT + TAB
+                                if (event.shiftKey) {
+                                    if (document.activeElement === firstTabStop) {
+                                        event.preventDefault()
+                                        lastTabStop.focus()
+                                    }
+                                // TAB
+                                } else {
+                                    if (document.activeElement === lastTabStop) {
+                                        event.preventDefault()
+                                        firstTabStop.focus()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        new Vue({
+            el: '#config-modal-open-button',
+            methods: {
+                openConfigWindow: async function () {
+                    // get saved tokens from keychain
+                    const tokens = await ipcRenderer.invoke('getTokens')
+                    configModal.secret.consumer_key = tokens.consumer_key || ""
+                    configModal.secret.consumer_secret = tokens.consumer_secret || ""
+                    configModal.secret.access_token = tokens.access_token || ""
+                    configModal.secret.token_secret = tokens.token_secret || ""
+                    const modal = UIkit.modal(`#${configModal.$el.id}`)
+                    modal.show()
+                    document.getElementById('consumer_key').focus()
+                }
+            }
+        })
+
+        // notification wrapper, can invoke from main process
+        ipcRenderer.on('sendNotification', (event, status, message) => {
+            loader.isActive = false
+            UIkit.notification({ message: message, status: status, pos: 'bottom-center', timeout: 1500 })
+            return
+        })
+
+        // notification wrapper (dialog), can invoke from main process
+        ipcRenderer.on('sendDialogErrorNotification', (event, status, message) => {
+            loader.isActive = false
+            let formattedMessage = ''
+            // because in some cases response data is not a valid JSON (e.g., rate-limit)
+            try {
+                formattedMessage = JSON.stringify(JSON.parse(message), null, 4)
+            } catch {
+                formattedMessage = message
+            }
+            UIkit.modal.dialog(Enum.MODAL_TEMPLATE.MODAL_NOTIFICATION({ 'status': status, 'message': formattedMessage }))
+            return
+        })
+    </script>
+</body>
+</html>

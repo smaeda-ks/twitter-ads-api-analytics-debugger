@@ -1,0 +1,29 @@
+{
+  "name": "twitter-ads-api-analytics-debugger",
+  "version": "0.0.1",
+  "description": "An Electron-based desktop application for Twitter Ads Analytics API.",
+  "main": "index.js",
+  "scripts": {
+    "build:win-ci": "electron-builder --win --x64 -c ./builder-effective-config-win.yaml -p onTagOrDraft",
+    "build:mac-ci": "electron-builder --mac -c ./builder-effective-config-mac.yaml -p onTagOrDraft",
+    "build:win": "electron-builder --win --x64 -c ./builder-effective-config-win.yaml",
+    "build:mac": "electron-builder --mac -c ./builder-effective-config-mac.yaml"
+  },
+  "keywords": [],
+  "author": "Shohei Maeda",
+  "license": "MIT",
+  "dependencies": {
+    "keytar": "5.0.0",
+    "request": "2.88.0"
+  },
+  "devDependencies": {
+    "electron": "7.1.7",
+    "electron-builder": "22.2.0",
+    "electron-rebuild": "1.8.8",
+    "electron-reload": "1.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smaeda-ks/twitter-ads-api-analytics-debugger.git"
+  }
+}

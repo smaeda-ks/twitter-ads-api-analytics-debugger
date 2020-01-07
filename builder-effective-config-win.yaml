@@ -1,0 +1,9 @@
+directories:
+  output: "dist"
+  buildResources: "build"
+appId: "com.twitterdev.tools.TwitterAds.Analytics.Debugger"
+win:
+  target: "portable"
+  publish:
+    - github
+artifactName: "${name}-${version}-${os}.${ext}"
