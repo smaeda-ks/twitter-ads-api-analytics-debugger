@@ -101,8 +101,12 @@ const template = [
         role: 'help',
         submenu: [
             {
-                label: 'Learn More',
-                click() { electron.shell.openExternal('https://electronjs.org') }
+                label: 'Documentation',
+                click() { electron.shell.openExternal('https://github.com/smaeda-ks/twitter-ads-api-analytics-debugger') }
+            },
+            {
+                label: 'Report issue',
+                click() { electron.shell.openExternal('https://github.com/smaeda-ks/twitter-ads-api-analytics-debugger/issues/new/choose') }
             }
         ]
     }

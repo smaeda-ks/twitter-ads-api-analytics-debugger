@@ -25,10 +25,10 @@ Enum.ENTITY_TYPE = [
     'PROMOTED_TWEET',
     'MEDIA_CREATIVE',
     'PROMOTED_ACCOUNT'
-]
+];
 
-const MODAL_ANALYTICS_DATA_MESSAGE = () =>
-    `
+const MODAL_ANALYTICS_DATA_MESSAGE =
+`
 <div class="uk-modal-dialog uk-modal-body">
     <button class="uk-modal-close-default" type="button" uk-close></button>
     <div class="uk-modal-header">
@@ -41,13 +41,13 @@ const MODAL_ANALYTICS_DATA_MESSAGE = () =>
 
     <div class="uk-modal-footer uk-text-right">
         <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-        <button class="uk-button uk-button-primary" type="button" v-on:click="saveData(data.jobId, data.json)" >Save</button>
+        <button class="uk-button uk-button-primary" type="button" v-on:click.self="saveData(data.jobId, data.json)" >Save</button>
     </div>
 </div>
 `;
 
-const MODAL_NOTIFICATION_MESSAGE = () =>
-    `
+const MODAL_NOTIFICATION_MESSAGE =
+`
 <div class="uk-modal-dialog uk-modal-body">
     <button class="uk-modal-close-default" type="button" uk-close></button>
     <div class="uk-modal-header">
@@ -64,8 +64,8 @@ const MODAL_NOTIFICATION_MESSAGE = () =>
 </div>
 `;
 
-const CONFIG_WINDOW_TEMPLATE = () =>
-    `
+const CONFIG_WINDOW_TEMPLATE =
+`
 <div class="uk-modal-dialog uk-modal-body">
     <div class="uk-modal-header">
         <h2 class="uk-modal-title">Tokens</h2>
@@ -73,14 +73,14 @@ const CONFIG_WINDOW_TEMPLATE = () =>
 
     <span class="uk-text-small">Tokens will be securely saved into the system's keychain <span uk-icon="happy"></span>
 
-    <form class="uk-margin-remove-left uk-form-stacked" id="config-form" ref="ref-config-form" v-on:keydown="trapTabKey($event)">
+    <form class="uk-margin-remove-left uk-form-stacked" id="config-form" ref="ref-config-form" v-on:keydown.tab="trapTabKey($event)">
         <div v-for="(value, key) in data" class="uk-margin uk-margin-small-top uk-margin-small-right uk-margin-small-bottom uk-text-small uk-width-1-1">
             <label class="uk-form-label uk-text-primary	uk-text-bold required" for="form-stacked-text">{{ key }}</label>
-            <input class="uk-input uk-form-small" v-bind:id="key" type="text" placeholder="" v-bind:value="value" v-on:input="updateSecret(key, $event.target.value)" required>
+            <input class="uk-input uk-form-small" v-bind:id="key" type="text" placeholder="" v-bind:value="value" v-on:change="updateSecret(key, $event.target.value)" required>
         </div>
         <div class="uk-modal-footer uk-text-right">
-            <button id="closeConfigBtn" v-on:click="resetTokens" class="uk-button uk-button-default uk-modal-close" type="button">Close</button>
-            <button id="save-tokens-button" v-on:click="saveTokens($event)" class="uk-button uk-button-primary" type="button">Save</button>
+            <button id="closeConfigBtn" v-on:click.self="resetTokens" class="uk-button uk-button-default uk-modal-close" type="button">Close</button>
+            <button id="save-tokens-button" v-on:click.self="saveTokens($event)" class="uk-button uk-button-primary" type="button">Save</button>
         </div>
     </form>
 </div>
@@ -117,7 +117,7 @@ Enum.TIME_24H = [
     "21:00",
     "22:00",
     "23:00"
-]
+];
 
 Enum.SEGMENTATION_TYPE = [
     "AGE",
@@ -139,7 +139,7 @@ Enum.SEGMENTATION_TYPE = [
     "REGIONS",
     "SIMILAR_TO_FOLLOWERS_OF_USER",
     "TV_SHOWS"
-]
+];
 
 Object.freeze(Enum);
 

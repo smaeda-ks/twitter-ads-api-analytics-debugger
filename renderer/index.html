@@ -83,12 +83,12 @@
             </div>
             <div class="uk-navbar-item uk-navbar-center" id="endpoint-switcher">
                 <div uk-switcher="animation: uk-animation-fade; toggle: > *">
-                    <button v-on:click="disableAsyncElements(false); isAsyncSelected = true; isSyncSelected = false;" class="uk-button uk-button-default" v-bind:class="{'uk-button-primary': isAsyncSelected}" type="button">Asynchronous</button>
-                    <button v-on:click="disableAsyncElements(true); isSyncSelected = true; isAsyncSelected = false;" class="uk-button uk-button-default" v-bind:class="{'uk-button-primary': isSyncSelected}" type="button">Synchronous</button>
+                    <button v-on:click.self="disableAsyncElements(false); isAsyncSelected = true; isSyncSelected = false;" class="uk-button uk-button-default" v-bind:class="{'uk-button-primary': isAsyncSelected}" type="button">Asynchronous</button>
+                    <button v-on:click.self="disableAsyncElements(true); isSyncSelected = true; isAsyncSelected = false;" class="uk-button uk-button-default" v-bind:class="{'uk-button-primary': isSyncSelected}" type="button">Synchronous</button>
                 </div>
             </div>
             <div class="uk-navbar-item uk-navbar-right" id="config-modal-open-button">
-                <a href="javascript:;" v-on:click="openConfigWindow($event)" class="uk-icon-button uk-margin-small-right" uk-icon="cog"></a>
+                <a href="#" v-on:click.prevent="openConfigWindow($event)" class="uk-icon-button uk-margin-small-right" uk-icon="cog"></a>
             </div>
         </nav>
         <div class="uk-flex" id="loader">
@@ -101,12 +101,12 @@
             style="flex-grow: 1;">
             <div style="flex-grow: 1;" class="uk-width-1-2">
                 <div id="send-request-button" class="uk-width-1-1" style="text-align:center;">
-                    <button v-on:click="onClickSendRequest($event)" class="uk-button uk-button-danger" type="submit">Send Request</button>
+                    <button v-on:click.self="onClickSendRequest($event)" class="uk-button uk-button-danger" type="submit">Send Request</button>
                 </div>
                 <form class="uk-margin-remove-left uk-form-stacked uk-grid-small" id="main-form" uk-grid>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary	uk-text-bold required" for="form-stacked-text">Ads Account ID</label>
-                        <input class="uk-input uk-form-small" id="ads-account-id" v-model="accountID" type="text" placeholder="" required>
+                        <input class="uk-input uk-form-small" id="ads-account-id" v-model.trim="accountId" type="text" placeholder="" required>
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                     </div>
@@ -125,7 +125,7 @@
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Entity IDs</label>
-                        <input class="uk-input uk-form-small" id="entity_ids" v-model="entityIds" type="text" placeholder="id1,id2,id3..." required>
+                        <input class="uk-input uk-form-small" id="entity_ids" v-model.trim="entityIds" type="text" placeholder="id1,id2,id3..." required>
                     </div>
                     <div class="uk-margin uk-margin-remove-bottom uk-margin-small-top uk-text-small uk-width-1">
                         <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Metric Groups</label>
@@ -159,7 +159,7 @@
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">Start Date</label>
-                        <input-datepicker ref="startDateInput" v-model="startDate"></input-datepicker>
+                        <input-datepicker ref="startDateInput" v-model.trim="startDate"></input-datepicker>
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">Start Time</label>
@@ -176,7 +176,7 @@
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary required uk-text-bold" for="form-stacked-text">End Date</label>
-                        <input-datepicker ref="endDateInput" v-model="endDate"></input-datepicker>
+                        <input-datepicker ref="endDateInput" v-model.trim="endDate"></input-datepicker>
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">End Time</label>
@@ -206,17 +206,17 @@
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">Country</label>
-                        <input class="uk-input uk-form-small" id="country" v-model="country" type="text" placeholder="" v-bind:disabled="disabledCountry">
+                        <input class="uk-input uk-form-small" id="country" v-model.trim="country" type="text" placeholder="" v-bind:disabled="disabledCountry">
                     </div>
                     <div class="uk-margin uk-margin-small-top uk-text-small uk-width-1-2@s uk-margin-remove-bottom">
                         <label class="uk-form-label uk-text-primary uk-text-bold" for="form-stacked-text">Platform</label>
-                        <input class="uk-input uk-form-small" id="platform" v-model="platform" type="text" placeholder="" v-bind:disabled="disabledPlatform">
+                        <input class="uk-input uk-form-small" id="platform" v-model.trim="platform" type="text" placeholder="" v-bind:disabled="disabledPlatform">
                     </div>
                 </form>
             </div>
             <div style="flex-grow: 1;" class="uk-width-1-2">
                 <div style="text-align:center;" id="fetch-jobs-button">
-                    <button v-on:click="onClickFetchJobs" class="uk-button uk-button-default">Fetch Jobs</button>
+                    <button v-on:click.self="onClickFetchJobs" class="uk-button uk-button-default">Fetch Jobs</button>
                 </div>
                 <table class="uk-table uk-table-hover uk-table-small uk-text-center uk-table-divider uk-margin-small-top uk-margin-small-right uk-margin-small-left">
                     <th class="uk-text-center uk-table-shrink">Status</th>
@@ -228,7 +228,7 @@
                     </tbody>
                 </table>
                 <div style="text-align:center;" id="reset-button">
-                    <button v-on:click="onClickReset" class="uk-button uk-button-default">Clear</button>
+                    <button v-on:click.self="onClickReset" class="uk-button uk-button-default">Clear</button>
                 </div>
             </div>
         </div>
@@ -268,7 +268,7 @@
             },
             components: {
                 'result-data-modal-template': {
-                    template: Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA(),
+                    template: Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA,
                     props: [
                         'data'
                     ],
@@ -292,7 +292,7 @@
             },
             components: {
                 'error-modal-template': {
-                    template: Enum.MODAL_TEMPLATE.MODAL_NOTIFICATION(),
+                    template: Enum.MODAL_TEMPLATE.MODAL_NOTIFICATION,
                     props: [
                         'data'
                     ]
@@ -338,7 +338,7 @@
                         `<span v-else-if="item.status === 'processing'" class="uk-label uk-label-warning">PROCESSING</span>` +
                         `</td>` +
                         `<td>{{ item.job_id }}</td>` +
-                        `<td><button v-if="item.url !== null" class="uk-button uk-margin-remove uk-button-default uk-button-small" v-on:click="fetchData(item.job_id, item.url);" :data-job-id="item.job_id" :data-cdn-url="item.url">view</button>` +
+                        `<td><button v-if="item.url !== null" class="uk-button uk-margin-remove uk-button-default uk-button-small" v-on:click.self="fetchData(item.job_id, item.url);" :data-job-id="item.job_id" :data-cdn-url="item.url">view</button>` +
                         `</tr>`,
                     props: ['item'],
                     methods: {
@@ -372,7 +372,7 @@
             el: '#main-form',
             data: {
                 // Ads account id
-                accountID: '',
+                accountId: '',
                 // entity_type
                 selectedEntityType: '',
                 listsEntityType: Enum.ENTITY_TYPE,
@@ -407,7 +407,7 @@
             components: {
                 'input-datepicker': {
                     props: ['value'],
-                    template: `<input v-bind:value="value" v-on:input="$emit('input', $event.target.value)" class="uk-input uk-form-small" type="text" placeholder="Select (Y-m-d)..." required>`
+                    template: `<input v-bind:value="value" v-on:change.self="$emit('input', $event.target.value)" class="uk-input uk-form-small" type="text" placeholder="Select (Y-m-d)..." required>`
                 },
             },
             mounted: function () {
@@ -472,7 +472,7 @@
                     // because we want to trigger form validations but don't need page transitions (or reload)
                     event.preventDefault()
 
-                    const accountId = mainForm.accountID
+                    const accountId = mainForm.accountId
                     const metricGroups = mainForm.selectedMultiMetricGroups
 
                     // form validations
@@ -537,7 +537,7 @@
             el: '#fetch-jobs-button',
             methods: {
                 onClickFetchJobs: async () => {
-                    const accountId = mainForm.accountID
+                    const accountId = mainForm.accountId
                     const jobIdsRowsIndex = {}
                     const parsedJobIds = tabelJobIds.items.filter((item, index) => {
                         if (item.status !== 'success') {
@@ -587,7 +587,7 @@
             },
             components: {
                 'config-modal-template': {
-                    template: Enum.MODAL_TEMPLATE.CONFIG_WINDOW(),
+                    template: Enum.MODAL_TEMPLATE.CONFIG_WINDOW,
                     props: [
                         'data'
                     ],
@@ -620,22 +620,19 @@
                             this.$parent.secret[key] = value
                         },
                         trapTabKey: function (event) {
-                            // TAB key press
-                            if (event.keyCode === 9) {
-                                firstTabStop = document.getElementById('consumer_key')
-                                lastTabStop = document.getElementById('save-tokens-button')
-                                // SHIFT + TAB
-                                if (event.shiftKey) {
-                                    if (document.activeElement === firstTabStop) {
-                                        event.preventDefault()
-                                        lastTabStop.focus()
-                                    }
-                                // TAB
-                                } else {
-                                    if (document.activeElement === lastTabStop) {
-                                        event.preventDefault()
-                                        firstTabStop.focus()
-                                    }
+                            firstTabStop = document.getElementById('consumer_key')
+                            lastTabStop = document.getElementById('save-tokens-button')
+                            // SHIFT + TAB
+                            if (event.shiftKey) {
+                                if (document.activeElement === firstTabStop) {
+                                    event.preventDefault()
+                                    lastTabStop.focus()
+                                }
+                            // TAB
+                            } else {
+                                if (document.activeElement === lastTabStop) {
+                                    event.preventDefault()
+                                    firstTabStop.focus()
                                 }
                             }
                         }
@@ -648,6 +645,7 @@
             el: '#config-modal-open-button',
             methods: {
                 openConfigWindow: async function () {
+                    console.log('open')
                     // get saved tokens from keychain
                     const tokens = await ipcRenderer.invoke('getTokens')
                     configModal.secret.consumer_key = tokens.consumer_key || ""
