@@ -4,8 +4,6 @@
   "description": "An Electron-based desktop application for Twitter Ads Analytics API.",
   "main": "index.js",
   "scripts": {
-    "build:win-ci": "electron-builder --win --x64 -c ./builder-effective-config-win.yaml -p onTagOrDraft",
-    "build:mac-ci": "electron-builder --mac -c ./builder-effective-config-mac.yaml -p onTagOrDraft",
     "build:win": "electron-builder --win --x64 -c ./builder-effective-config-win.yaml",
     "build:mac": "electron-builder --mac -c ./builder-effective-config-mac.yaml"
   },

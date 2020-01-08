@@ -6,7 +6,7 @@
 
 An Electron-based desktop application for Twitter Ads Analytics API.
 
-![ded3aaa3f5711fc3dc801b13708b1c6e](https://user-images.githubusercontent.com/11495867/71873346-46a50f80-3162-11ea-8d96-9b990f9b504d.gif)
+![ea4d4a412df65a6d8cd4a623fee7a710](https://user-images.githubusercontent.com/11495867/72020738-c68cc000-32af-11ea-9ad8-a8b1b0cdf5e7.gif)
 
 ## Installation
 
@@ -30,6 +30,10 @@ Need a way to generate tokens easily? Try this tool - [tw-oob-oauth-cli](https:/
 This app stores token to the system's credential storage (i.e., `Keychain` for macOS and `Credential Vault` for Windows).
 
 ## Development
+
+### requirements
+
+- Node.js version 12+
 
 ### npm install
 
@@ -69,4 +73,7 @@ $ npm run build:mac
 
 # Windows
 $ npm run build:win
+
+# built packages are in the dist directory
+$ ls ./dist
 ```
