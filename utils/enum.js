@@ -41,7 +41,7 @@ const MODAL_ANALYTICS_DATA_MESSAGE = () =>
 
     <div class="uk-modal-footer uk-text-right">
         <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-        <button class="uk-button uk-button-primary" type="button">Save</button>
+        <button class="uk-button uk-button-primary" type="button" v-on:click="saveData(data.jobId, data.json)" >Save</button>
     </div>
 </div>
 `;

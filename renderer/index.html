@@ -235,7 +235,7 @@
     </div>
 
     <div id="result-data-modal" uk-modal>
-        <result-data-modal-template v-bind:data="{'endpointType': endpointType, 'json': json}"></result-data-modal-template>
+        <result-data-modal-template v-bind:data="{'endpointType': endpointType, 'json': json, 'jobId': jobId}"></result-data-modal-template>
     </div>
 
     <div id="error-modal" uk-modal>
@@ -263,14 +263,23 @@
             el: '#result-data-modal',
             data: {
                 endpointType: '',
-                json: ''
+                json: '',
+                jobId: ''
             },
             components: {
                 'result-data-modal-template': {
                     template: Enum.MODAL_TEMPLATE.MODAL_ANALYTICS_DATA(),
                     props: [
                         'data'
-                    ]
+                    ],
+                    methods: {
+                        saveData: function (jobId, json) {
+                            let element = document.createElement('a')
+                            element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(json))
+                            element.setAttribute('download', `job-${jobId}.json`)
+                            element.click()
+                        }
+                    }
                 }
             }
         })
@@ -350,6 +359,7 @@
                             }
                             resultDataModal.endpointType = 'Async'
                             resultDataModal.json = JSON.stringify(data, null, 4)
+                            resultDataModal.jobId = jobId
                             let modal = UIkit.modal(`#${resultDataModal.$el.id}`)
                             modal.show()
                         }
