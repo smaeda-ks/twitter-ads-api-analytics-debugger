@@ -1,6 +1,6 @@
 {
   "name": "twitter-ads-api-analytics-debugger",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An Electron-based desktop application for Twitter Ads Analytics API.",
   "main": "index.js",
   "scripts": {
