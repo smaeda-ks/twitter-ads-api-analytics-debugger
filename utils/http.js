@@ -1,7 +1,8 @@
 const request = require('request');
 
-const ASYNC_BASE_URI = ({ account_id }) => `https://ads-api.twitter.com/6/stats/jobs/accounts/${account_id}`;
-const SYNC_BASE_URI = ({ account_id }) => `https://ads-api.twitter.com/6/stats/accounts/${account_id}`;
+const API_VERSION = '7'
+const ASYNC_BASE_URI = ({ account_id }) => `https://ads-api.twitter.com/${API_VERSION}/stats/jobs/accounts/${account_id}`;
+const SYNC_BASE_URI = ({ account_id }) => `https://ads-api.twitter.com/${API_VERSION}/stats/accounts/${account_id}`;
 
 class HttpClient {
 
